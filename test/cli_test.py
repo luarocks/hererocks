@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import time
 import unittest
+import sys
 
 class TestCLI(unittest.TestCase):
     @classmethod
@@ -149,6 +150,7 @@ class TestCLI(unittest.TestCase):
             "deactivate 2: {}".format(path)
         ], from_prefix=False)
 
+    @unittest.skipIf(sys.platform.startswith("win"), "requires POSIX")
     def test_activate_posix_script(self):
         self.assertHererocksSuccess(["--lua", "5.1"], location=os.path.join("here", "bad (dir) 1"))
         self.assertHererocksSuccess(["--lua", "5.2"], location=os.path.join("here", "bad (dir) 2"))
