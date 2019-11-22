@@ -29,7 +29,7 @@ For more info see below or run ``hererocks --help`` for a complete listing of op
 Installation
 ------------
 
-Using `pip <https://pypi.python.org/pypi/pip>`_: run ``pip install hererocks``, using ``sudo`` if necessary.
+Using `pip <https://pypi.python.org/pypi/pip>`_: run ``pip install git+https://github.com/luarocks/hererocks``, using ``sudo`` if necessary.
 
 Manually: download hererocks with ``wget https://raw.githubusercontent.com/luarocks/hererocks/latest/hererocks.py``, then use ``python hererocks.py ...`` to run it.
 
