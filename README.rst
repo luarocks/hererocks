@@ -140,7 +140,6 @@ Popular continuous integration services such as `Travis-CI <https://travis-ci.or
 
   language: python # Can use any language here, but if it's not 'python'
                    # it becomes necessary to pass '--user' to pip when installing hererocks.
-  sudo: false      # Use container-based infrastructure.
 
   env:
     - LUA="lua 5.1"

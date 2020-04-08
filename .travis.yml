@@ -3,10 +3,8 @@ language: python
 matrix:
   include:
     - os: linux
-      sudo: false
       python: 2.7
     - os: linux
-      sudo: false
       python: 3.5
     - os: osx
       language: generic
