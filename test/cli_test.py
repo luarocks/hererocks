@@ -171,11 +171,11 @@ class TestCLI(unittest.TestCase):
 
     def test_install_lua_5_4_with_luarocks_3(self):
         self.assertHererocksSuccess(["--lua", "5.4", "--luarocks", "3"])
-        self.assertHererocksSuccess(["--lua", "5.4.0-beta", "--luarocks", "3"])
+        self.assertHererocksSuccess(["--lua", "5.4.0-rc1", "--luarocks", "3"])
 
         if os.name == "nt":
             self.assertHererocksSuccess(["--lua", "5.4", "--luarocks", "3", "--target", "vs"])
-            self.assertHererocksSuccess(["--lua", "5.4.0-beta", "--luarocks", "3", "--target", "vs"])
+            self.assertHererocksSuccess(["--lua", "5.4.0-rc1", "--luarocks", "3", "--target", "vs"])
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
