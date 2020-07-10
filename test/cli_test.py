@@ -7,6 +7,10 @@ import time
 import unittest
 import sys
 
+
+skip_if_win = unittest.skipIf(sys.platform.startswith("win"), "requires POSIX")
+
+
 class TestCLI(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -149,16 +153,14 @@ class TestCLI(unittest.TestCase):
             "deactivate 2: {}".format(path)
         ], from_prefix=False)
 
-    @unittest.skipIf(sys.platform.startswith("win"), "requires POSIX")
-    def test_activate_posix_script(self):
+    def check_activate_posix_script(self, check_cmd):
         self.assertHererocksSuccess(["--lua", "5.1"], location=os.path.join("here", "bad (dir) 1"))
         self.assertHererocksSuccess(["--lua", "5.2"], location=os.path.join("here", "bad (dir) 2"))
-        checker = os.path.join("test", "check_activate_posix.sh")
 
         path = os.getenv("PATH")
         path1 = os.path.abspath(os.path.join("test", "here", "bad (dir) 1", "bin"))
         path2 = os.path.abspath(os.path.join("test", "here", "bad (dir) 2", "bin"))
-        self.assertSuccess([checker], [
+        self.assertSuccess(check_cmd, [
             "initial: {}".format(path),
             "activate 1: {}{}{}".format(path1, os.pathsep, path),
             "deactivate 1: {}".format(path),
@@ -167,6 +169,19 @@ class TestCLI(unittest.TestCase):
             "activate 2: {}{}{}".format(path2, os.pathsep, path),
             "deactivate 2: {}".format(path)
         ], from_prefix=False)
+
+    @skip_if_win
+    def test_activate_posix_script(self):
+        check_cmd = [os.path.join("test", "check_activate_posix.sh")]
+        self.check_activate_posix_script(check_cmd)
+
+    @skip_if_win
+    def test_activate_posix_script_bash_posix_mode(self):
+        check_cmd = [
+            "bash", "--posix",
+            os.path.join("test", "check_activate_posix.sh"),
+        ]
+        self.check_activate_posix_script(check_cmd)
 
     def test_install_lua_5_4_with_luarocks_3(self):
         self.assertHererocksSuccess(["--lua", "5.4", "--luarocks", "3"])

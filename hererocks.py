@@ -94,9 +94,9 @@ activation_script_templates = {
         fi
     """,
     "activate_posix": """
-        s=$(command -V deactivate_lua)
+        s=$(command -V deactivate_lua 2>&1)
         if [ $? -eq 0 ]; then
-            if [ "${s##*function}" = '' ]; then
+            if [ "${s##*function*}" = '' ]; then
                 deactivate_lua
             fi;
         fi;
