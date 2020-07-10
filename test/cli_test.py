@@ -12,10 +12,6 @@ skip_if_win = unittest.skipIf(sys.platform.startswith("win"), "requires POSIX")
 
 
 class TestCLI(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        subprocess.check_call(["coverage", "erase"])
-
     def setUp(self):
         if os.name == "nt":
             # On Windows tests randomly fail here with errors such as 'can not remove here\bin: directory not empty'.
@@ -54,7 +50,7 @@ class TestCLI(unittest.TestCase):
 
     def assertHererocksSuccess(self, args, expected_output_lines=None, location="here"):
         self.assertSuccess([
-            "coverage", "run", "-a",
+            sys.executable,
             "hererocks.py", os.path.join("test", location)] + args, expected_output_lines, from_prefix=False)
 
     def test_install_latest_lua_with_latest_luarocks(self):

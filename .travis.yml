@@ -1,20 +1,24 @@
 language: python
 
-matrix:
+python:
+  - 2.7
+  - 3.5
+  - 3.6
+  - 3.7
+  - 3.8
+
+jobs:
   include:
-    - os: linux
-      python: 2.7
-    - os: linux
-      python: 3.5
     - os: osx
       language: generic
+      env: MACOSX_DEPLOYMENT_TARGET=10.12
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo pip2 install pyflakes pycodestyle coverage coveralls nose --ignore-installed; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then pip install pyflakes pycodestyle coverage coveralls nose; fi
+  - pip install flake8 pytest-cov coveralls
 
 script:
-  - pyflakes .
-  - pycodestyle .
-  - nosetests
+  - flake8
+  - pytest --cov
+
+after_success:
   - coveralls

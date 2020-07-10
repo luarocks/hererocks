@@ -2,16 +2,19 @@ version: 1.0.{build}
 
 environment:
   matrix:
+  - Python: 27-x64
   - Python: 35-x64
-  - Python: 27
+  - Python: 36-x64
+  - Python: 37-x64
+  - Python: 38-x64
 
 build_script:
   - PATH %CD%\here\bin;C:\mingw\bin;C:\python%Python%;C:\python%Python%\scripts;%PATH%
-  - pip install pyflakes pycodestyle coverage coveralls nose
+  - pip install flake8 pytest-cov coveralls
 
 test_script:
-  - pyflakes .
-  - pycodestyle .
-  - nosetests
-  - coverage report
+  - flake8
+  - pytest --cov
+
+on_success:
   - if not "%COVERALLS_REPO_TOKEN%"=="" coveralls
