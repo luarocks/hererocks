@@ -2343,7 +2343,7 @@ def setup_vs_and_rerun(vs_version, arch):
 
 def setup_vs_by_vswhere(target):
     '''
-    vswhere: https://github.com/Microsoft/vswhere   
+    vswhere: https://github.com/Microsoft/vswhere
     detect Visual Studio 2017 versin 15.2 or later
     '''
     if target != "vs":
