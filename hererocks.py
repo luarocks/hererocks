@@ -2341,30 +2341,50 @@ def setup_vs_and_rerun(vs_version, arch):
     remove_dir(temp_dir)
     sys.exit(exit_code)
 
-def setup_vs(target):
-    # setup environment variables for latest vc
+def setup_vs_by_vswhere(target):
+    '''
+    vswhere: https://github.com/Microsoft/vswhere   
+    detect Visual Studio 2017 versin 15.2 or later
+    '''
+    if target != "vs":
+        return
+
+    if program_exists("cl"):
+        # already setup
+        return
+
     vswhere = os.environ[
         'ProgramFiles(x86)'] + '\\Microsoft Visual Studio\\Installer\\vswhere.exe'
-    if os.path.exists(vswhere):
-        install_dir = run(vswhere, '-latest', '-products', '*', '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', '-property', 'installationPath', get_output=True)
-        vcvars = install_dir + '\\VC\\Auxiliary\\Build\\vcvars64.bat'
-        if os.path.exists(vcvars):
-            for l in run(os.environ['COMSPEC'], '/C', vcvars, '&', 'set', get_output=True).splitlines():
-                try:
-                    k, v = l.split('=', maxsplit=1)
-                    k = k.upper()
-                    if k == 'PATH':
-                        path = os.environ['PATH']
-                        for p in v.split(';'):
-                            if p not in path:
-                                path = p + ';' + path
-                        os.environ['PATH'] = path
-                    elif k == 'INCLUDE':
-                        os.environ['INCLUDE'] = v
-                    elif k == 'LIB':
-                        os.environ['LIB'] = v
-                except ValueError:
-                    pass
+    if not os.path.exists(vswhere):
+        return
+
+    install_dir = run(vswhere, '-latest', '-products', '*', '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', '-property', 'installationPath', get_output=True)
+    vcvars = install_dir + '\\VC\\Auxiliary\\Build\\vcvars64.bat'
+    if not os.path.exists(vcvars):
+        return
+
+    for l in run(os.environ['COMSPEC'], '/C', vcvars, '&', 'set', get_output=True).splitlines():
+        try:
+            k, v = l.split('=', maxsplit=1)
+            k = k.upper()
+            if k == 'PATH':
+                path = os.environ['PATH']
+                for p in v.split(';'):
+                    if p not in path:
+                        path = p + ';' + path
+                os.environ['PATH'] = path
+            elif k == 'INCLUDE':
+                os.environ['INCLUDE'] = v
+            elif k == 'LIB':
+                os.environ['LIB'] = v
+        except ValueError:
+            pass
+
+def setup_vs(target):
+    try:
+        setup_vs_by_vswhere(target)
+    except Exception:
+        pass
 
     # If using vsXX_YY or vs_XX target, set VS up by writing a .bat file calling corresponding vcvarsall.bat
     # before recursively calling hererocks, passing arguments through a temporary file using
