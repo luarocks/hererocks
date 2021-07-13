@@ -2350,17 +2350,21 @@ def setup_vs(target):
         if os.path.exists(install_dir):
             vcvars = install_dir + '\\VC\\Auxiliary\\Build\\vcvars64.bat'
             for l in run(os.environ['COMSPEC'], '/C', vcvars, '&', 'set', get_output=True).splitlines():
-                if l.startswith('PATH='):
-                    for p in l[len('PATH='):].split(';'):
-                        if p not in os.environ['PATH']:
-                            os.environ['PATH'] = p + ';' + os.environ['PATH']
-                    print('PATH=', os.environ['PATH'])
-                elif l.startswith('INCLUDE='):
-                    os.environ['INCLUDE'] = l[len('INCLUDE='):]
-                    print('INCLUDE=', os.environ['INCLUDE'])
-                elif l.startswith('LIB='):
-                    os.environ['LIB'] = l[len('LIB='):]
-                    print('LIB=', os.environ['LIB'])
+                try:
+                    k, v = l.split('=', maxsplit=1)
+                    k = k.upper()
+                    if k == 'PATH':
+                        path = os.environ['PATH']
+                        for p in v.split(';'):
+                            if p not in path:
+                                path = p + ';' + path
+                        os.environ['PATH'] = path
+                    elif k == 'INCLUDE':
+                        os.environ['INCLUDE'] = v
+                    elif k == 'LIB':
+                        os.environ['LIB'] = v
+                except ValueError:
+                    pass
 
     # If using vsXX_YY or vs_XX target, set VS up by writing a .bat file calling corresponding vcvarsall.bat
     # before recursively calling hererocks, passing arguments through a temporary file using
