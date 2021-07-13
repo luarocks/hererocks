@@ -2347,8 +2347,8 @@ def setup_vs(target):
         'ProgramFiles(x86)'] + '\\Microsoft Visual Studio\\Installer\\vswhere.exe'
     if os.path.exists(vswhere):
         install_dir = run(vswhere, '-latest', '-products', '*', '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', '-property', 'installationPath', get_output=True)
-        if os.path.exists(install_dir):
-            vcvars = install_dir + '\\VC\\Auxiliary\\Build\\vcvars64.bat'
+        vcvars = install_dir + '\\VC\\Auxiliary\\Build\\vcvars64.bat'
+        if os.path.exists(vcvars):
             for l in run(os.environ['COMSPEC'], '/C', vcvars, '&', 'set', get_output=True).splitlines():
                 try:
                     k, v = l.split('=', maxsplit=1)
