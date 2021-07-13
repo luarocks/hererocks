@@ -2342,6 +2342,26 @@ def setup_vs_and_rerun(vs_version, arch):
     sys.exit(exit_code)
 
 def setup_vs(target):
+    # setup environment variables for latest vc
+    vswhere = os.environ[
+        'ProgramFiles(x86)'] + '\\Microsoft Visual Studio\\Installer\\vswhere.exe'
+    if os.path.exists(vswhere):
+        install_dir = run(vswhere, '-latest', '-products', '*', '-requires', 'Microsoft.VisualStudio.Component.VC.Tools.x86.x64', '-property', 'installationPath', get_output=True)
+        if os.path.exists(install_dir):
+            vcvars = install_dir + '\\VC\\Auxiliary\\Build\\vcvars64.bat'
+            for l in run(os.environ['COMSPEC'], '/C', vcvars, '&', 'set', get_output=True).splitlines():
+                if l.startswith('PATH='):
+                    for p in l[len('PATH='):].split(';'):
+                        if p not in os.environ['PATH']:
+                            os.environ['PATH'] = p + ';' + os.environ['PATH']
+                    print('PATH=', os.environ['PATH'])
+                elif l.startswith('INCLUDE='):
+                    os.environ['INCLUDE'] = l[len('INCLUDE='):]
+                    print('INCLUDE=', os.environ['INCLUDE'])
+                elif l.startswith('LIB='):
+                    os.environ['LIB'] = l[len('LIB='):]
+                    print('LIB=', os.environ['LIB'])
+
     # If using vsXX_YY or vs_XX target, set VS up by writing a .bat file calling corresponding vcvarsall.bat
     # before recursively calling hererocks, passing arguments through a temporary file using
     # --actual-argv-file because passing special characters like '^' as an argument to a batch file is not fun.
