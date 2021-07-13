@@ -2363,9 +2363,9 @@ def setup_vs_by_vswhere(target):
     if not os.path.exists(vcvars):
         return
 
-    for l in run(os.environ['COMSPEC'], '/C', vcvars, '&', 'set', get_output=True).splitlines():
+    for line in run(os.environ['COMSPEC'], '/C', vcvars, '&', 'set', get_output=True).splitlines():
         try:
-            k, v = l.split('=', maxsplit=1)
+            k, v = line.split('=', maxsplit=1)
             k = k.upper()
             if k == 'PATH':
                 path = os.environ['PATH']
