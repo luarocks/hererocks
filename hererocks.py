@@ -1567,6 +1567,8 @@ class LuaJIT(Lua):
         else:
             if opts.target == "mingw" and program_exists("mingw32-make"):
                 make = "mingw32-make"
+            elif opts.target == "freebsd":
+                make = "gmake"
             else:
                 make = "make"
 
