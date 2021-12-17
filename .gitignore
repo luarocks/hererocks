@@ -2,6 +2,7 @@
 *.egg-info
 dist
 .coverage
+coverage.xml
 test/here
 test/builds
 test/luarocks
