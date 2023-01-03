@@ -25,6 +25,12 @@ jobs:
           - ubuntu-latest
           - macos-latest
           - windows-latest
+        exclude:
+          - python-version: '3.6'
+          - os: ubuntu-latest
+        include:
+          - python-version: '3.6'
+          - os: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
