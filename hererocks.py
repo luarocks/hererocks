@@ -2813,10 +2813,10 @@ def main(argv=None):
         "macosx target uses cc and the remaining targets use gcc, passing compiler "
         "and linker flags the same way Lua's Makefile does when running make <target>.",
         choices=[
-            "linux", "macosx", "freebsd", "mingw", "posix", "generic", "mingw", "vs", "vs_32", "vs_64",
+            "linux", "macosx", "freebsd", "mingw", "posix", "generic", "vs", "vs_32", "vs_64",
             "vs08_32", "vs08_64", "vs10_32", "vs10_64", "vs12_32", "vs12_64",
             "vs13_32", "vs13_64", "vs15_32", "vs15_64"
-        ], metavar="{linux,macosx,freebsd,mingw,posix,generic,mingw,vs,vs_XX,vsXX_YY}",
+        ], metavar="{linux,macosx,freebsd,mingw,posix,generic,vs,vs_XX,vsXX_YY}",
         default=get_default_lua_target())
     parser.add_argument("--no-readline", help="Don't use readline library when building standard Lua.",
                         action="store_true", default=False)
