@@ -36,7 +36,7 @@ Installation
 
 Using `pip <https://pypi.python.org/pypi/pip>`_: run ``pip install git+https://github.com/luarocks/hererocks``, using ``sudo`` if necessary.
 
-Manually: download hererocks with ``wget https://raw.githubusercontent.com/luarocks/hererocks/latest/hererocks.py``, then use ``python hererocks.py ...`` to run it.
+Manually: download hererocks with ``wget https://raw.githubusercontent.com/luarocks/hererocks/master/hererocks.py``, then use ``python hererocks.py ...`` to run it.
 
 Requirements
 ------------
