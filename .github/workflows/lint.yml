@@ -19,9 +19,11 @@ jobs:
           - '3.11'
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: MatteoH2O1999/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+          allow-build: info
+          cache-build: true
       - name: Install flake8
         run: |
           pip install --upgrade pip wheel setuptools
