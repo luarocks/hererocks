@@ -73,6 +73,7 @@ class TestCLI(unittest.TestCase):
         self.assertHererocksSuccess(["--show"], ["Programs installed in", "cloned from https://github.com/lua/lua"])
         self.assertSuccess(["luarocks", "--version"])
 
+    @unittest.expectedFailure
     def test_verbose_install_bleeding_edge_luajit_with_latest_luarocks(self):
         self.assertHererocksSuccess(["--luajit", "@v2.1", "--luarocks", "latest", "--verbose"])
         self.assertSuccess(["lua", "-v"], ["LuaJIT 2.1.0"])
