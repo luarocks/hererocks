@@ -2055,17 +2055,19 @@ class LuaJIT(Lua):
 
                 run("msvcbuild.bat")
         else:
+            make_args = []
             if opts.target == "mingw" and program_exists("mingw32-make"):
                 make = "mingw32-make"
+                make_args.append("SHELL=cmd")
             elif opts.target == "freebsd":
                 make = "gmake"
             else:
                 make = "make"
 
-            if not cflags:
-                run(make)
-            else:
-                run(make, "XCFLAGS=" + " ".join(cflags))
+            if cflags:
+                make_args.append("XCFLAGS=" + " ".join(cflags))
+
+            run(make, make_args)
 
     def make_install(self):
         luajit_file = exe("luajit")

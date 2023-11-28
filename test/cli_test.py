@@ -73,15 +73,14 @@ class TestCLI(unittest.TestCase):
         self.assertHererocksSuccess(["--show"], ["Programs installed in", "cloned from https://github.com/lua/lua"])
         self.assertSuccess(["luarocks", "--version"])
 
-    @unittest.expectedFailure
     def test_verbose_install_bleeding_edge_luajit_with_latest_luarocks(self):
         self.assertHererocksSuccess(["--luajit", "@v2.1", "--luarocks", "latest", "--verbose"])
-        self.assertSuccess(["lua", "-v"], ["LuaJIT 2.1.0"])
+        self.assertSuccess(["lua", "-v"], ["LuaJIT 2.1"])
         self.assertSuccess(["lua", "-e", "require 'jit.bcsave'"])
 
         self.assertSuccess(["luarocks", "--version"])
         self.assertSuccess(["luarocks", "make", os.path.join("test", "hererocks-test-scm-1.rockspec")])
-        self.assertSuccess(["hererocks-test"], ["LuaJIT 2.1.0"])
+        self.assertSuccess(["hererocks-test"], ["LuaJIT 2.1"])
 
         self.assertHererocksSuccess(["--luajit", "@v2.1", "--luarocks", "latest"], ["already installed"])
         self.assertHererocksSuccess(["--show"], ["cloned from https://github.com/LuaJIT/LuaJIT"])
