@@ -334,8 +334,8 @@ def check_existence(path):
 
     return os.path.exists(path)
 
-def copy_dir(src, dst):
-    shutil.copytree(src, dst, ignore=lambda _, __: {".git"})
+def copy_dir(src, dst, ignore_git_dir=True):
+    shutil.copytree(src, dst, ignore=(lambda _, __: {".git"}) if ignore_git_dir else None)
 
 def remove_read_only_or_reraise(func, path, exc_info):
     if not os.access(path, os.W_OK):
@@ -451,6 +451,8 @@ def strip_extensions(filename):
         return filename
 
 class Program(object):
+    needs_git_dir_for_build = False
+
     def __init__(self, version):
         version = self.translations.get(version, version)
 
@@ -484,7 +486,7 @@ class Program(object):
 
             print("Using {} from {}".format(self.title, version))
             result_dir = os.path.join(temp_dir, self.name)
-            copy_dir(version, result_dir)
+            copy_dir(version, result_dir, ignore_git_dir=not self.needs_git_dir_for_build)
             os.chdir(result_dir)
             self.fetched = True
             self.version_suffix = ""
@@ -534,7 +536,7 @@ class Program(object):
         if self.source == "git":
             # Currently inside the cached git repo, just copy it somewhere.
             result_dir = os.path.join(temp_dir, self.name)
-            copy_dir(".", result_dir)
+            copy_dir(".", result_dir, ignore_git_dir=not self.needs_git_dir_for_build)
             os.chdir(result_dir)
             return
 
@@ -2282,6 +2284,9 @@ class LuaJIT(BaseJIT):
         "LuaJIT-2.1.0-beta2.tar.gz": "82e115b21aa74634b2d9f3cb3164c21f3cde7750ba3258d8820f500f6a36b651",
         "LuaJIT-2.1.0-beta3.tar.gz": "409f7fe570d3c16558e594421c47bdd130238323c9d6fd6c83dedd2aaeb082a8",
     }
+    # https://github.com/LuaJIT/LuaJIT/commit/50e0fa03c48cb9af03c3efdc3100f12687651a2e \
+    # #diff-3e2513390df543315686d7c85bd901ca9256268970032298815d2f893a9f0685R449
+    needs_git_dir_for_build = True
 
     def get_download_name(self):
         # v2.0.1 tag is broken, use v2.0.1-fixed.

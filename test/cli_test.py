@@ -2,13 +2,37 @@
 
 import os
 import shutil
+import stat
 import subprocess
+import sys
+import tempfile
 import time
 import unittest
-import sys
 
 
 skip_if_win = unittest.skipIf(sys.platform.startswith("win"), "requires POSIX")
+
+
+if os.name == "nt":
+    # https://stackoverflow.com/questions/21261132/shutil-rmtree-to-remove-readonly-files
+
+    def _remove_readonly(func, path, _):
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
+
+    if sys.version_info >= (3, 12):
+
+        def remove_dir(directory):
+            shutil.rmtree(directory, onexc=_remove_readonly)
+
+    else:
+
+        def remove_dir(directory):
+            shutil.rmtree(directory, onerror=_remove_readonly)
+else:
+
+    def remove_dir(directory):
+        shutil.rmtree(directory)
 
 
 class TestCLI(unittest.TestCase):
@@ -22,7 +46,17 @@ class TestCLI(unittest.TestCase):
 
         for subdir in ["here", "builds"]:
             if os.path.exists(os.path.join("test", subdir)):
-                shutil.rmtree(os.path.join("test", subdir))
+                remove_dir(os.path.join("test", subdir))
+
+    def execute(self, args, cwd=None, assert_success=True):
+        process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+        output = process.communicate()[0]
+
+        if assert_success and process.returncode != 0:
+            raise AssertionError("Error running command '{}': code {}, output:\n{}".format(
+                " ".join(args), process.returncode, output))
+
+        return output
 
     def assertSuccess(self, args, expected_output_lines=None, from_prefix=True):
         if from_prefix:
@@ -31,12 +65,7 @@ class TestCLI(unittest.TestCase):
             if os.name == "nt" and not os.path.exists(args[0]) and not os.path.exists(args[0] + ".exe"):
                 args[0] += ".bat"
 
-        process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = process.communicate()[0]
-
-        if process.returncode != 0:
-            raise AssertionError("Error running command '{}': code {}, output:\n{}".format(
-                " ".join(args), process.returncode, output))
+        output = self.execute(args, assert_success=True)
 
         if expected_output_lines is not None:
             actual_output_lines = output.splitlines()
@@ -74,13 +103,23 @@ class TestCLI(unittest.TestCase):
         self.assertSuccess(["luarocks", "--version"])
 
     def test_verbose_install_bleeding_edge_luajit_with_latest_luarocks(self):
-        self.assertHererocksSuccess(["--luajit", "@v2.1", "--luarocks", "latest", "--verbose"])
-        self.assertSuccess(["lua", "-v"], ["LuaJIT 2.1"])
+        downloads_dir = tempfile.mkdtemp()
+        try:
+            self.assertHererocksSuccess(
+                ["--luajit", "@v2.1", "--luarocks", "latest", "--downloads", downloads_dir, "--verbose"])
+            git_output = self.execute(
+                ["git", "show", "-s", "--format=%ct"],
+                cwd=os.path.join(downloads_dir, 'LuaJIT'), assert_success=True)
+        finally:
+            remove_dir(downloads_dir)
+        timestamp = git_output.decode("UTF-8").strip()
+        expected_version = "LuaJIT 2.1.{}".format(timestamp)
+        self.assertSuccess(["lua", "-v"], [expected_version])
         self.assertSuccess(["lua", "-e", "require 'jit.bcsave'"])
 
         self.assertSuccess(["luarocks", "--version"])
         self.assertSuccess(["luarocks", "make", os.path.join("test", "hererocks-test-scm-1.rockspec")])
-        self.assertSuccess(["hererocks-test"], ["LuaJIT 2.1"])
+        self.assertSuccess(["hererocks-test"], [expected_version])
 
         self.assertHererocksSuccess(["--luajit", "@v2.1", "--luarocks", "latest"], ["already installed"])
         self.assertHererocksSuccess(["--show"], ["cloned from https://github.com/LuaJIT/LuaJIT"])
