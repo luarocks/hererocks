@@ -34,10 +34,6 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-build: info
           cache-build: true
-      - name: Set MACOSX_DEPLOYMENT_TARGET
-        if: runner.os == 'macOS'
-        run: |
-          echo 'MACOSX_DEPLOYMENT_TARGET=10.12' >> $GITHUB_ENV
       - name: Install test runner
         run: |
           pip install --upgrade pip wheel setuptools

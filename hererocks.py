@@ -2194,6 +2194,10 @@ class BaseJIT(Lua):
             msvcbuild_file.write(value_and_rest.replace("\r\n", " {}\r\n".format(cflags), 1).encode("UTF-8"))
 
     def make(self):
+        if sys.platform == "darwin" and "MACOSX_DEPLOYMENT_TARGET" not in os.environ:
+            # X.Y[.Z] -> X.Y
+            os.environ["MACOSX_DEPLOYMENT_TARGET"] = ".".join(platform.mac_ver()[0].split(".")[:2])
+
         cflags = list(self.compat_cflags)
 
         if opts.cflags is not None:
