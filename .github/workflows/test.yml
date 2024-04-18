@@ -29,7 +29,7 @@ jobs:
           - windows-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: MatteoH2O1999/setup-python@v2
+      - uses: MatteoH2O1999/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
           allow-build: info
