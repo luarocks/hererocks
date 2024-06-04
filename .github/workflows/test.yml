@@ -14,6 +14,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest-large
+          - windows-latest
         python-version:
           - '2.7'
           - '3.6'
@@ -23,10 +27,20 @@ jobs:
           - '3.10'
           - '3.11'
           - '3.12'
-        os:
-          - ubuntu-latest
-          - macos-latest-large
-          - windows-latest
+        exclude:
+          - os: macos-latest-large
+            python-version: '2.7'
+          - os: macos-latest-large
+            python-version: '3.6'
+          - os: macos-latest-large
+            python-version: '3.7'
+        include:
+          - os: macos-13
+            python-version: '2.7'
+          - os: macos-13
+            python-version: '3.6'
+          - os: macos-13
+            python-version: '3.7'
     steps:
       - uses: actions/checkout@v3
       - uses: MatteoH2O1999/setup-python@v3
