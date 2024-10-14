@@ -242,12 +242,13 @@ def get_default_cache():
 
         return os.path.join(cache_root, "HereRocks", "Cache")
     else:
-        home = os.path.expanduser("~")
+        cache_root = os.getenv("XDG_CACHE_HOME", "~/.cache")
+        expanded_cache_root = os.path.expanduser(cache_root)
 
-        if home == "~":
+        if expanded_cache_root.startswith("~"):
             return None
-        else:
-            return os.path.join(home, ".cache", "hererocks")
+
+        return os.path.join(expanded_cache_root, "hererocks")
 
 def download(url, filename):
     response = urlopen(url, timeout=opts.timeout)
