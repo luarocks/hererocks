@@ -1952,6 +1952,49 @@ class RioLua(Lua):
                status = luaD_closeprotected(L, 1, status);
                if (status != LUA_OK)  /* errors? */
                  luaD_seterrorobj(L, status, L->stack.p + 1);
+        """,
+        "New metatable in an all-weak table can fool the GC": """
+            lgc.c:
+            @@ -553,8 +553,12 @@ static lu_mem traversetable (global_State *g, Table *h) {
+                   traverseweakvalue(g, h);
+                 else if (!weakvalue)  /* strong values? */
+                   traverseephemeron(g, h, 0);
+            -    else  /* all weak */
+            -      linkgclist(h, g->allweak);  /* nothing to traverse now */
+            +    else {  /* all weak */
+            +      if (g->gcstate == GCSpropagate)
+            +        linkgclist(h, g->grayagain);  /* must visit again its metatable */
+            +      else
+            +        linkgclist(h, g->allweak);  /* must clear collected entries */
+            +    }
+               }
+               else  /* not weak */
+                 traversestrongtable(g, h);
+        """,
+        "Lua raises an error when given the option '--' without a script": """
+            lua.c:
+            @@ -302,7 +302,8 @@ static int collectargs (char **argv, int *first) {
+                   case '-':  /* '--' */
+                     if (argv[i][2] != '\\0')  /* extra characters after '--'? */
+                       return has_error;  /* invalid option */
+            -        *first = i + 1;
+            +        /* if there is a script name, it comes after '--' */
+            +        *first = (argv[i + 1] != NULL) ? i + 1 : 0;
+                     return args;
+                   case '\\0':  /* '-' */
+                     return args;  /* script "name" is '-' */
+        """,
+        "Constructors with nils can overflow counters during parsing": """
+            lparser.c:
+            @@ -940,6 +940,8 @@ static void constructor (LexState *ls, expdesc *t) {
+                 if (ls->t.token == '}') break;
+                 closelistfield(fs, &cc);
+                 field(ls, &cc);
+            +    checklimit(fs, cc.tostore + cc.na + cc.nh, INT_MAX/2,
+            +               "items in a constructor");
+               } while (testnext(ls, ',') || testnext(ls, ';'));
+               check_match(ls, '}', '{', line);
+               lastlistfield(fs, &cc);
         """
     }
     patches_per_version = {
@@ -2022,6 +2065,11 @@ class RioLua(Lua):
                 "An emergency GC can collect the __newindex of a metatable (if the metatable is a weak table) while that field is being used in a table update",
                 "'luaD_seterrorobj' should not raise errors, because it is called unprotected",
                 "message handler can be overwritten by a closing variable when closing a thread"
+            ],
+            "8": [
+                "New metatable in an all-weak table can fool the GC",
+                "Lua raises an error when given the option '--' without a script",
+                "Constructors with nils can overflow counters during parsing"
             ]
         },
     }
