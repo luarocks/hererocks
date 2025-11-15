@@ -101,7 +101,7 @@ Lua and LuaJIT have some flags that add compatibility with other Lua versions. L
 Installing standard PUC-Rio Lua
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Available versions: 5.1 - 5.1.5, 5.2.0 - 5.2.4, 5.3.0 - 5.3.6, 5.4.0 - 5.4.8. ``latest`` and ``^`` version aliases point to ``5.4.8``.
+Available versions: 5.1 - 5.1.5, 5.2.0 - 5.2.4, 5.3.0 - 5.3.6, 5.4.0 - 5.4.8, 5.5.0-rc1 (5.5 and 5.5.0 are aliases for 5.5.0-rc1). ``latest`` and ``^`` version aliases point to ``5.4.8``.
 
 Use ``5.1.0`` to install Lua ``5.1`` which was released without patch version for some reason.
 
@@ -148,6 +148,7 @@ Popular continuous integration services such as `Travis-CI <https://travis-ci.or
     - LUA="lua 5.2"
     - LUA="lua 5.3"
     - LUA="lua 5.4"
+    - LUA="lua 5.5"
     - LUA="luajit 2.0"
     - LUA="luajit 2.1"
 
@@ -174,6 +175,7 @@ Equivalent configuration (``appveyor.yml``) for `Appveyor <http://www.appveyor.c
     - LUA: "lua 5.2"
     - LUA: "lua 5.3"
     - LUA: "lua 5.4"
+    - LUA: "lua 5.5"
     - LUA: "luajit 2.0"
     - LUA: "luajit 2.1"
 
