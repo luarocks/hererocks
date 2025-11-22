@@ -15,17 +15,17 @@ jobs:
     strategy:
       matrix:
         include:
-          # macOS (14 -- Intel, 15, 26 -- ARM)
-          - os: macos-14-large
+          # macOS (14 -- ARM, 15 -- Intel, 26 -- ARM)
+          - os: macos-14
             python-version: '3.10'
             setup-python: true
-          - os: macos-14-large
+          - os: macos-14
             python-version: '3.11'
             setup-python: true
-          - os: macos-15
+          - os: macos-15-intel
             python-version: '3.12'
             setup-python: true
-          - os: macos-15
+          - os: macos-15-intel
             python-version: '3.13'
             setup-python: true
           - os: macos-26
