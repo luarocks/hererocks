@@ -43,7 +43,7 @@ jobs:
           - os: windows-2022
             python-version: '3.13'
             setup-python: true
-          - os: windows-2024
+          - os: windows-2022
             python-version: '3.14'
             setup-python: true
           # Ubuntu
