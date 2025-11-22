@@ -12,18 +12,11 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        python-version:
-          - '2.7'
-          - '3.13'
     steps:
-      - uses: actions/checkout@v4
-      - uses: MatteoH2O1999/setup-python@v3
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-version }}
-          allow-build: info
-          cache-build: true
+          python-version: '3.14'
       - name: Install linters
         run: |
           pip install isort flake8
