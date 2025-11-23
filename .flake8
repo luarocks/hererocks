@@ -1,0 +1,5 @@
+[flake8]
+filename =
+    ./hererocks.py
+    ./test/**.py
+ignore = E203,E302,E305,E501
