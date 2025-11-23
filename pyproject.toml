@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hererocks"
+dynamic = ["version"]
+description = "Tool for installing Lua and LuaRocks locally"
+readme = "README.rst"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    {name = "Peter Melnichenko", email = "mpeterval@gmail.com"},
+]
+maintainers = [
+    {name = "hererocks maintainers", email = "hisham@luarocks.org"},
+]
+keywords = ["lua"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+[project.urls]
+Homepage = "https://github.com/luarocks/hererocks"
+Repository = "https://github.com/luarocks/hererocks.git"
+Issues = "https://github.com/luarocks/hererocks/issues"
+
+[project.scripts]
+hererocks = "hererocks:main"
+
+[dependency-groups]
+lint = [
+    "isort",
+    "flake8",
+]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+dev = [
+    {include-group = "lint"},
+    {include-group = "test"},
+]
+
+[tool.setuptools]
+py-modules = ["hererocks"]
+include-package-data = false
+
+[tool.setuptools.dynamic]
+version = {attr = "hererocks.__version__"}
+
+[tool.isort]
+lines_after_imports = 2
+multi_line_output = 5
+include_trailing_comma = true
+use_parentheses = true
+
+[tool.coverage.run]
+source = ["hererocks"]
