@@ -2131,8 +2131,10 @@ class RioLua(Lua):
             self.compat = "none" if opts.compat in ["none", "5.2"] else "default"
         elif self.major_version == "5.3":
             self.compat = "default" if opts.compat in ["default", "5.2"] else opts.compat
-        else:
+        elif self.major_version == "5.4":
             self.compat = "default" if opts.compat in ["default", "5.3"] else opts.compat
+        else:
+            self.compat = "all" if opts.compat in ["all", "5.4"] else "none"
 
     def add_compat_cflags_and_redefines(self):
         if self.major_version == "5.1":
@@ -2151,9 +2153,12 @@ class RioLua(Lua):
 
             if self.compat in ["default", "5.2", "all"]:
                 self.compat_cflags.append("-DLUA_COMPAT_5_2")
-        else:
+        elif self.major_version == "5.4":
             if self.compat in ["default", "5.3", "all"]:
                 self.compat_cflags.append("-DLUA_COMPAT_5_3")
+        else:
+            if self.compat in ["5.4", "all"]:
+                self.compat_cflags.append("-DLUA_COMPAT_MATHLIB")
 
     def apply_patch(self, patch_name):
         patch = self.all_patches[patch_name]
@@ -2168,7 +2173,9 @@ class RioLua(Lua):
             # Lua 5.1.x, but not Lua 5.1(.0)
             r'^\s*#define\s+LUA_RELEASE\s+"Lua 5\.1\.(\d)"\s*$',
             # Lua 5.2.x+
-            r'^\s*#define LUA_VERSION_RELEASE\s+"(\d)"\s*$'
+            r'^\s*#define LUA_VERSION_RELEASE\s+"(\d)"\s*$',
+            # Lua 5.5.x
+            r'^\s*#define LUA_VERSION_RELEASE_N\s+(\d)\s*$'
         ]
 
         with open(os.path.join("lua.h")) as lua_h:
@@ -2213,7 +2220,7 @@ class RioLua(Lua):
             applied, "" if applied == 1 else "es", len(patches)))
 
     def make(self):
-        if self.major_version == "5.3" or self.major_version == "5.4":
+        if self.major_version in ["5.3", "5.4", "5.5"]:
             cc = ["gcc", "-std=gnu99"]
         else:
             cc = "gcc"
