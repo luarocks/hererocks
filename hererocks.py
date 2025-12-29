@@ -2596,7 +2596,8 @@ class LuaRocks(Program):
         "3.9.0", "3.9.1", "3.9.2",
         "3.10.0",
         "3.11.0", "3.11.1",
-        "3.12.0", "3.12.1", "3.12.2",
+        "3.12.0", "3.12.1", "3.12.2", # Teal
+        "3.13.0",
     ]
     translations = {
         "2": "2.4.4",
@@ -2605,7 +2606,7 @@ class LuaRocks(Program):
         "2.2": "2.2.2",
         "2.3": "2.3.0",
         "2.4": "2.4.4",
-        "3": "3.12.2",
+        "3": "3.13.0",
         "3.0": "3.0.4",
         "3.1": "3.1.3",
         "3.2": "3.2.1",
@@ -2619,8 +2620,9 @@ class LuaRocks(Program):
         "3.10": "3.10.0",
         "3.11": "3.11.1",
         "3.12": "3.12.2",
-        "^": "3.12.2",
-        "latest": "3.12.2"
+        "3.13": "3.13.0",
+        "^": "3.13.0",
+        "latest": "3.13.0"
     }
     checksums = {
         "luarocks-2.0.10.tar.gz"   : "11731dfe6e210a962cb2a857b8b2f14a9ab1043e13af09a1b9455b486401b46e",
@@ -2713,6 +2715,8 @@ class LuaRocks(Program):
         "luarocks-3.12.1-win32.zip": "9a2e65167e8887dd5e7225eb9caa5fc3958d587e9e000554e32a8449678b36b2 ",
         "luarocks-3.12.2.tar.gz"   : "b0e0c85205841ddd7be485f53d6125766d18a81d226588d2366931e9a1484492",
         "luarocks-3.12.2-win32.zip": "735f478c529aca5c52f16913b47b5a25dff8c1fb399cd3dbe179a73841d1bad7",
+        "luarocks-3.13.0.tar.gz"   : "245bf6ec560c042cb8948e3d661189292587c5949104677f1eecddc54dbe7e37",
+        "luarocks-3.13.0-win32.zip": "97606881b49d944f9febf1f7ae62fa2c2274ccf583ed9dda8fe6170c3e6128e1",
     }
 
     def get_download_name(self):
@@ -3185,12 +3189,13 @@ def main(argv=None):
     parser.add_argument(
         "-r", "--luarocks", help="Version of LuaRocks to install. "
         "Version can be specified in the same way as for standard Lua. "
-        "Versions 2.0.8 - 3.12.2 are supported. "
+        "Versions 2.0.8 - 3.13.0 are supported. "
         "'latest' and '^' are aliases for 3.12.2. "
         "Default git repo is https://github.com/luarocks/luarocks. "
         "Note that Lua 5.2 is not supported in LuaRocks 2.0.8, "
         "Lua 5.3 is supported only since LuaRocks 2.2.0, Lua 5.4 is supported only since "
-        "LuaRocks 3.0.0, and RaptorJIT is supported only since LuaRocks 3.2.0.")
+        "LuaRocks 3.0.0, Lua 5.5 is supported only since LuaRocks 3.13.0 and RaptorJIT "
+        "is supported only since LuaRocks 3.2.0.")
     parser.add_argument("--show", default=False, action="store_true",
                         help="Show programs installed in <location>, possibly after installing new ones.")
     parser.add_argument("-i", "--ignore-installed", default=False, action="store_true",
