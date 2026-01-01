@@ -10,6 +10,9 @@ import tempfile
 import time
 import unittest
 
+# Supresses coverage.py's module-not-imported and no-data-collected warnings
+import hererocks  # noqa: F401
+
 
 skip_if_win = unittest.skipIf(sys.platform.startswith("win"), "requires POSIX")
 

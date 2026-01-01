@@ -43,7 +43,7 @@ lint = [
 ]
 test = [
     "pytest",
-    "pytest-cov",
+    "pytest-cov>=7",
 ]
 dev = [
     {include-group = "lint"},
@@ -65,3 +65,4 @@ use_parentheses = true
 
 [tool.coverage.run]
 source = ["hererocks"]
+patch = ["subprocess"]
