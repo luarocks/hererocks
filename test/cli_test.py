@@ -85,18 +85,18 @@ class TestCLI(unittest.TestCase):
 
     def test_install_latest_lua_with_latest_luarocks(self):
         self.assertHererocksSuccess(["--lua", "latest", "--luarocks", "latest"])
-        self.assertHererocksSuccess(["--show"], ["Programs installed in", "Compat: default"])
-        self.assertSuccess(["lua", "-v"], ["Lua 5.4.8"])
+        self.assertHererocksSuccess(["--show"], ["Programs installed in", "Compat: none"])
+        self.assertSuccess(["lua", "-v"], ["Lua 5.5.0"])
 
         self.assertSuccess(["luarocks", "--version"])
         self.assertSuccess(["luarocks", "make", os.path.join("test", "hererocks-test-scm-1.rockspec")])
-        self.assertSuccess(["hererocks-test"], ["Lua 5.4"])
+        self.assertSuccess(["hererocks-test"], ["Lua 5.5"])
 
         self.assertHererocksSuccess(["--lua", "latest", "--luarocks", "latest"], ["already installed"])
         self.assertHererocksSuccess(["--luarocks", "latest", "--ignore-installed"], ["Fetching", "cached"])
 
     def test_install_latest_lua_with_luarocks_from_git(self):
-        self.assertHererocksSuccess(["--lua", "latest", "--luarocks", "https://github.com/luarocks/luarocks@master"])
+        self.assertHererocksSuccess(["--lua", "latest", "--luarocks", "https://github.com/luarocks/luarocks@main"])
 
     def test_install_lua_from_git_with_latest_luarocks(self):
         self.assertHererocksSuccess(["--lua", "@b1daa06", "--luarocks", "latest"])
