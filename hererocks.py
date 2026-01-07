@@ -2012,6 +2012,18 @@ class RioLua(Lua):
                    luaE_setdebt(g, g->GCdebt - n);
                    luaC_condGC(L, (void)0, work = 1);
                    if (work && g->gcstate == GCSpause)  /* end of cycle? */
+        """,
+        "string.packsize can overflow result in 32-bit machines using 64-bit integers": """
+            lstrlib.c:
+            @@ -1726,7 +1726,7 @@ static int str_packsize (lua_State *L) {
+                 luaL_argcheck(L, opt != Kstring && opt != Kzstr, 1,
+                                  "variable-length format");
+                 size += ntoalign;  /* total space used by option */
+            -    luaL_argcheck(L, totalsize <= LUA_MAXINTEGER - size,
+            +    luaL_argcheck(L, totalsize <= MAX_SIZE - size,
+                                  1, "format result too large");
+                 totalsize += size;
+               }
         """
     }
     patches_per_version = {
@@ -2091,7 +2103,8 @@ class RioLua(Lua):
         },
         "5.5": {
             "0": [
-                "Arithmetic overflow in 'collectgarbage\"step\"'"
+                "Arithmetic overflow in 'collectgarbage\"step\"'",
+                "string.packsize can overflow result in 32-bit machines using 64-bit integers"
             ]
         },
     }
