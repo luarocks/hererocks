@@ -58,6 +58,7 @@ activation_script_templates = {
         end
 
         for path_part in (path .. path_sep):gmatch("([^" .. path_sep .. "]*)" .. path_sep) do
+            local path_part = path_part
             if path_part ~= hererocks_path then
                 if for_fish then
                     path_part = "'" .. path_part:gsub("'", [['\'']]) .. "'"
