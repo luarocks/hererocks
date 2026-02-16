@@ -2433,7 +2433,9 @@ class BaseJIT(Lua):
             make_args = []
             if opts.target == "mingw" and program_exists("mingw32-make"):
                 make = "mingw32-make"
-                make_args.append("SHELL=cmd")
+                if not ("MSYSTEM" in os.environ or "TERM" in os.environ):
+                    # luajit makefile uses dos commands, unless running in msys/cygwin shell
+                    make_args.append("SHELL=cmd")
             elif opts.target == "freebsd":
                 make = "gmake"
             else:
