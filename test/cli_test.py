@@ -10,7 +10,7 @@ import tempfile
 import time
 import unittest
 
-# Supresses coverage.py's module-not-imported and no-data-collected warnings
+# Suppresses coverage.py's module-not-imported and no-data-collected warnings
 import hererocks  # noqa: F401
 
 

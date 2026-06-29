@@ -269,7 +269,7 @@ def run(*args, **kwargs):
     or a list of strings; lists are flattened.
     If opts.verbose is True, output of the command is shown.
     If the command exits with non-zero, print an error message and exit.
-    If keyward argument get_output is True, output is returned.
+    If keyword argument get_output is True, output is returned.
     Additionally, non-zero exit code with empty output is ignored.
     """
 
@@ -2138,7 +2138,7 @@ class RioLua(Lua):
     def get_source_files_prefix(self):
         # When installing PUC-Rio Lua from a git repo or local sources,
         # use directory structure of its GitHub mirror, where
-        # source files are direcly in project root instead of `src`.
+        # source files are directly in project root instead of `src`.
         if self.source == "release":
             return "src"
 
@@ -3021,7 +3021,7 @@ def setup_vs_and_rerun(vs_version, arch):
 def setup_vs_by_vswhere(target):
     '''
     vswhere: https://github.com/Microsoft/vswhere
-    detect Visual Studio 2017 versin 15.2 or later
+    detect Visual Studio 2017 version 15.2 or later
     '''
     if target != "vs":
         return
