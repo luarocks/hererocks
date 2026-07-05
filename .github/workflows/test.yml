@@ -89,3 +89,77 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           version: v0.7.3
+
+  run_hererocks:  # Ensure that hererocks runs on multiple OSes and
+    permissions:  # installs the latest versions of Lua and Luarocks
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        luaVersion: ["5.1", "5.2", "5.3", "5.4", "5.5", latest]
+        luaRocksVersion: [latest]
+        pypi: [true]
+        include:
+          - os: ubuntu-latest
+            luaVersion: "5.4"
+            luaRocksVersion: "3.13.0"
+            pypi: true
+          - os: macos-latest
+            luaVersion: "5.4"
+            luaRocksVersion: latest
+            pypi: true
+          - os: windows-latest
+            luaVersion: "5.4"
+            luaRocksVersion: latest
+            pypi: true
+          # Tests for pypi: false
+          - os: ubuntu-latest
+            luaVersion: latest  # v5.5.0!
+            luaRocksVersion: latest  # v3.13.0!
+            pypi: false
+          - os: macos-latest
+            luaVersion: latest  # v5.5.0!
+            luaRocksVersion: latest  # v3.13.0!
+            pypi: false
+          - os: windows-latest
+            luaVersion: latest  # v5.5.0!
+            luaRocksVersion: latest  # v3.13.0!
+            pypi: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libreadline-dev
+      - uses: actions/checkout@v7
+        with:
+          repository: luarocks/hererocks
+      - if: ${{ matrix.pypi }}
+        run: pipx run hererocks lua --lua=${{ matrix.luaVersion }} --luarocks=${{ matrix.luaRocksVersion }}
+      - if: ${{ !matrix.pypi }}
+        env:
+          SPEC: git+https://github.com/luarocks/hererocks.git
+        run: pipx run --spec=$SPEC hererocks lua --lua=${{ matrix.luaVersion }} --luarocks=${{ matrix.luaRocksVersion }}
+      - if: runner.os != 'Windows'
+        run: |
+          source lua/bin/activate  # Adds 'lua/bin' to $PATH.
+          lua -v && luarocks --version
+          if [ "${{ matrix.pypi }}" == "true" ]; then
+            luarocks install luacheck
+            luacheck --version
+          else
+            echo "There is a lua5.5 'modify a const' issue with the luacheck on LuaRocks."
+          fi
+      - if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          ls lua/bin
+          lua/bin/activate.bat  # Adds 'lua/bin' to %PATH%.
+          lua.exe -v && luarocks.exe --version
+          if [ "${{ matrix.pypi }}" == "true" ]; then
+            luarocks install luacheck
+            luacheck --version
+          else
+            echo "There is a lua5.5 'modify a const' issue with the luacheck on LuaRocks."
+          fi
