@@ -534,6 +534,19 @@ class Program(object):
         if need_checkout and ref != "master":
             run("git", "checkout", ref)
 
+    def verify_checksum(self, archive_name):
+        print("Verifying SHA256 checksum")
+        expected_checksum = self.checksums[self.get_download_name()]
+        observed_checksum = sha256_of_file(archive_name)
+        if expected_checksum != observed_checksum:
+            message = "SHA256 checksum mismatch for {}\nExpected: {}\nObserved: {}".format(
+                archive_name, expected_checksum, observed_checksum)
+
+            if opts.ignore_checksums:
+                print("Warning: " + message)
+            else:
+                sys.exit("Error: " + message)
+
     def fetch(self):
         if self.fetched:
             return
@@ -568,17 +581,7 @@ class Program(object):
             else:
                 sys.exit(1)
 
-        print("Verifying SHA256 checksum")
-        expected_checksum = self.checksums[self.get_download_name()]
-        observed_checksum = sha256_of_file(archive_name)
-        if expected_checksum != observed_checksum:
-            message = "SHA256 checksum mismatch for {}\nExpected: {}\nObserved: {}".format(
-                archive_name, expected_checksum, observed_checksum)
-
-            if opts.ignore_checksums:
-                print("Warning: " + message)
-            else:
-                sys.exit("Error: " + message)
+        self.verify_checksum(archive_name)
 
         if archive_name.endswith(".zip"):
             archive = zipfile.ZipFile(archive_name)
