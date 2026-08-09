@@ -2,8 +2,6 @@
 
 """A tool for installing Lua and LuaRocks locally."""
 
-from __future__ import print_function
-
 import argparse
 import contextlib
 import hashlib
@@ -22,13 +20,9 @@ import tarfile
 import tempfile
 import textwrap
 import zipfile
+from urllib.error import URLError
+from urllib.request import urlopen
 
-
-try:
-    from urllib2 import URLError, urlopen
-except ImportError:
-    from urllib.error import URLError
-    from urllib.request import urlopen
 
 if os.name == "nt":
     try:
