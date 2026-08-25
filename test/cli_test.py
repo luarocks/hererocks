@@ -225,11 +225,11 @@ class TestCLI(unittest.TestCase):
 
     def test_install_lua_5_4_with_luarocks_3(self):
         self.assertHererocksSuccess(["--lua", "5.4", "--luarocks", "3"])
-        self.assertHererocksSuccess(["--lua", "5.4.8", "--luarocks", "3"])
+        self.assertHererocksSuccess(["--lua", "5.4.9", "--luarocks", "3"])
 
         if os.name == "nt":
             self.assertHererocksSuccess(["--lua", "5.4", "--luarocks", "3", "--target", "vs"])
-            self.assertHererocksSuccess(["--lua", "5.4.8", "--luarocks", "3", "--target", "vs"])
+            self.assertHererocksSuccess(["--lua", "5.4.9", "--luarocks", "3", "--target", "vs"])
 
     def test_install_lua_5_5_with_luarocks_3(self):
         self.assertHererocksSuccess(["--lua", "5.5", "--luarocks", "3"])
