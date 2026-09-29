@@ -15,11 +15,11 @@ jobs:
     strategy:
       matrix:
         include:
-          # macOS (14 -- ARM, 15 -- Intel, 26 -- ARM)
-          - os: macos-14
+          # macOS (macos-{15,26} -- ARM, macos-{15,26}-intel -- Intel)
+          - os: macos-15
             python-version: '3.10'
             setup-python: true
-          - os: macos-14
+          - os: macos-15
             python-version: '3.11'
             setup-python: true
           - os: macos-15-intel
@@ -30,6 +30,9 @@ jobs:
             setup-python: true
           - os: macos-26
             python-version: '3.14'
+          - os: macos-26
+            python-version: '3.15'
+            setup-python: true
           # Windows
           - os: windows-2022
             python-version: '3.10'
@@ -60,23 +63,27 @@ jobs:
           - os: ubuntu-24.04
             python-version: '3.14'
             setup-python: true
+          - os: ubuntu-26.04-arm
+            python-version: '3.15'
+            setup-python: true
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Setup Python
         if: ${{ matrix.setup-python }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
+          allow-prereleases: true
           python-version: ${{ matrix.python-version }}
       - name: Assert Python version
         run: |
           python -c 'import sys
           assert "%d.%d" % sys.version_info[:2] == "${{ matrix.python-version }}", sys.version'
       - name: Install readline
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        if: runner.os == 'Linux'
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
-          sudo apt-get install -y libreadline-dev
+          sudo apt-get install --yes libreadline-dev
       - name: Install test runner
         env:
           PIP_BREAK_SYSTEM_PACKAGES: true
