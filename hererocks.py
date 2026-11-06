@@ -2030,6 +2030,132 @@ class RioLua(Lua):
                                   1, "format result too large");
                  totalsize += size;
                }
+        """,
+        "'luaO_applyparam' can be called with a negative parameter, causing a negative value to be left-shifted (undefined behavior)": """
+            lgc.c:
+            @@ -1472,7 +1472,8 @@ static int checkmajorminor (lua_State *L, global_State *g) {
+               if (g->gckind == KGC_GENMAJOR) {  /* generational mode? */
+                 l_mem numbytes = gettotalbytes(g);
+                 l_mem addedbytes = numbytes - g->GCmajorminor;
+            -    l_mem limit = applygcparam(g, MAJORMINOR, addedbytes);
+            +    l_mem limit = (addedbytes < 0) ? 0
+            +                                   : applygcparam(g, MAJORMINOR, addedbytes);
+                 l_mem tobecollected = numbytes - g->GCmarked;
+                 if (tobecollected > limit) {
+                   atomic2gen(L, g);  /* return to generational mode */
+            lobject.c:
+            @@ -89,6 +89,7 @@ lu_byte luaO_codeparam (unsigned int p) {
+             l_mem luaO_applyparam (lu_byte p, l_mem x) {
+               int m = p & 0xF;  /* mantissa */
+               int e = (p >> 4);  /* exponent */
+            +  lua_assert(x >= 0);
+               if (e > 0) {  /* normalized? */
+                 e--;  /* correct exponent */
+                 m += 0x10;  /* correct mantissa; maximum value is 0x1F */
+        """,
+        "Wrong semantics in numeric for loops with NaN arguments": """
+            lvm.c:
+            @@ -190,10 +190,11 @@ static int forlimit (lua_State *L, lua_Integer init, const TValue *lim,
+                   if (step < 0) return 1;  /* initial value must be less than it */
+                   *p = LUA_MAXINTEGER;  /* truncate */
+                 }
+            -    else {  /* it is less than min integer */
+            +    else if (luai_numgt(0, flim)) {  /* if it is negative, it is too small */
+                   if (step > 0) return 1;  /* initial value must be greater than it */
+                   *p = LUA_MININTEGER;  /* truncate */
+                 }
+            +    else return 1;  /* limit is NaN (neither 0 nor positive nor negative) */
+               }
+               return (step > 0 ? init > *p : init < *p);  /* not to run? */
+             }
+            @@ -251,8 +252,8 @@ static int forprep (lua_State *L, StkId ra) {
+                   luaG_forerror(L, pinit, "initial value");
+                 if (step == 0)
+                   luaG_runerror(L, "'for' step is zero");
+            -    if (luai_numlt(0, step) ? luai_numlt(limit, init)
+            -                            : luai_numlt(init, limit))
+            +    if (!(luai_numge(0, step) ? luai_numge(init, limit)
+            +                              : luai_numge(limit, init)))
+                   return 1;  /* skip the loop */
+                 else {
+                   /* make sure all values are floats */
+        """,
+        "Wrong optimization changes result of (-0.0 - 0)": """
+            lcode.c:
+            @@ -1542,15 +1542,19 @@ static void codebinK (FuncState *fs, BinOpr opr,
+             
+             /* Try to code a binary operator negating its second operand.
+             ** For the metamethod, 2nd operand must keep its original value.
+            +** As a special case, avoid the optimization for (exp - 0), because
+            +** (-0.0 - 0) is -0.0, while (-0.0 + 0) is +0.0.
+             */
+             static int finishbinexpneg (FuncState *fs, expdesc *e1, expdesc *e2,
+            -                             OpCode op, int line, TMS event) {
+            +                            OpCode op, int line, TMS event) {
+               if (!isKint(e2))
+                 return 0;  /* not an integer constant */
+               else {
+                 lua_Integer i2 = e2->u.ival;
+                 if (!(fitsC(i2) && fitsC(-i2)))
+                   return 0;  /* not in the proper range */
+            +    if (event == TM_SUB && i2 == 0)
+            +      return 0;  /* do not optimize (exp - 0) */
+                 else {  /* operating a small integer constant */
+                   int v2 = cast_int(i2);
+                   finishbinexpval(fs, e1, e2, op, int2sC(-v2), 0, line, OP_MMBINI, event);
+        """,
+        "Calling coroutine.close while closing a coroutine after an error reports an error with no error message": """
+            lcorolib.c:
+            @@ -78,7 +78,8 @@ static int luaB_auxwrap (lua_State *L) {
+                 int stat = lua_status(co);
+                 if (stat != LUA_OK && stat != LUA_YIELD) {  /* error in the coroutine? */
+                   stat = lua_closethread(co, L);  /* close its tbc variables */
+            -      lua_assert(stat != LUA_OK);
+            +      if (stat == LUA_OK)
+            +        return 0;  /* nothing to return */
+                   lua_xmove(co, L, 1);  /* move error message to the caller */
+                 }
+                 if (stat != LUA_ERRMEM &&  /* not a memory error and ... */
+            lstate.c:
+            @@ -319,18 +319,36 @@ TStatus luaE_resetthread (lua_State *L, TStatus status) {
+               status = luaD_closeprotected(L, 1, status);
+               if (status != LUA_OK)  /* errors? */
+                 luaD_seterrorobj(L, status, L->stack.p + 1);
+            -  else
+            +  else  /* keep in the stack only the fake function-entry for basic ci */
+                 L->top.p = L->stack.p + 1;
+               luaD_reallocstack(L, cast_int(L->ci->top.p - L->stack.p), 0);
+               return status;
+             }
+             
+             
+            +/*
+            +** Auxiliary function to call luaE_resetthread in protected mode.
+            +** That function closes all tbc variables in protected mode, so the
+            +** only possible "error" is when a tbc variable closes the thread being
+            +** closed and therefore calls 'luaD_throwbaselevel'; in that case,
+            +** control goes directly back to the first call to lua_closethread (not
+            +** to the second), to properly return it.
+            +*/
+            +static void resetthread_aux (lua_State *L, void *ud) {
+            +  TStatus status = *cast(TStatus*, ud);
+            +  status = luaE_resetthread(L, status);
+            +  if (status != LUA_OK)
+            +    luaD_throw(L, status);
+            +}
+            +
+            +
+             LUA_API int lua_closethread (lua_State *L, lua_State *from) {
+               TStatus status;
+               lua_lock(L);
+               L->nCcalls = (from) ? getCcalls(from) : 0;
+            -  status = luaE_resetthread(L, L->status);
+            +  status = luaD_rawrunprotected(L, resetthread_aux, &L->status);
+            +  /* stack has error message iff there was an error */
+            +  lua_assert(L->top.p == L->stack.p + (status == LUA_OK ? 1 : 2));
+               if (L == from)  /* closing itself? */
+                 luaD_throwbaselevel(L, status);
+               lua_unlock(L);
         """
     }
     patches_per_version = {
@@ -2111,6 +2237,12 @@ class RioLua(Lua):
             "0": [
                 "Arithmetic overflow in 'collectgarbage\"step\"'",
                 "string.packsize can overflow result in 32-bit machines using 64-bit integers"
+            ],
+            "1": [
+                "'luaO_applyparam' can be called with a negative parameter, causing a negative value to be left-shifted (undefined behavior)",
+                "Wrong semantics in numeric for loops with NaN arguments",
+                "Wrong optimization changes result of (-0.0 - 0)",
+                "Calling coroutine.close while closing a coroutine after an error reports an error with no error message"
             ]
         },
     }
