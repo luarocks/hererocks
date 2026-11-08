@@ -2083,7 +2083,7 @@ class RioLua(Lua):
         "Wrong optimization changes result of (-0.0 - 0)": """
             lcode.c:
             @@ -1542,15 +1542,19 @@ static void codebinK (FuncState *fs, BinOpr opr,
-             
+
              /* Try to code a binary operator negating its second operand.
              ** For the metamethod, 2nd operand must keep its original value.
             +** As a special case, avoid the optimization for (exp - 0), because
@@ -2127,8 +2127,8 @@ class RioLua(Lua):
                luaD_reallocstack(L, cast_int(L->ci->top.p - L->stack.p), 0);
                return status;
              }
-             
-             
+
+
             +/*
             +** Auxiliary function to call luaE_resetthread in protected mode.
             +** That function closes all tbc variables in protected mode, so the
