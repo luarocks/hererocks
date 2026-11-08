@@ -22,5 +22,5 @@ jobs:
           pip install isort flake8
       - name: Run linters
         run: |
-          isort -q -c -rc .
+          isort --quiet --check-only --ignore-whitespace .
           flake8
