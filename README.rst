@@ -12,7 +12,7 @@ hererocks
 |gh-workflow| |codecov|
 
 ``hererocks`` is a single file Python script for installing `Lua <http://http://www.lua.org/>`_
-(or `LuaJIT <http://luajit.org/>`_ or `moonjit <https://github.com/moonjit/moonjit>`_ or `RaptorJIT <https://github.com/raptorjit/raptorjit>`_)
+(or `LuaJIT <http://luajit.org/>`_ or `RaptorJIT <https://github.com/raptorjit/raptorjit>`_)
 and `LuaRocks <https://luarocks.org/>`_, its package manager, into a local directory.
 It configures Lua to only see packages installed by that bundled version of LuaRocks, so that the installation is isolated.
 
